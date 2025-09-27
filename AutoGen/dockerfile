@@ -1,5 +1,6 @@
 FROM python:3.10.18
 
+RUN python -m pip install --upgrade pip
 # Set a working directory inside the container
 WORKDIR /app
 
