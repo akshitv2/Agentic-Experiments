@@ -1,0 +1,28 @@
+FROM python:3.10.18
+
+# Set a working directory inside the container
+WORKDIR /app
+
+# Copy only the requirements file first (better for caching)
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN playwright install --with-deps
+
+COPY requirements-dev.txt .
+
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
+# Copy the rest of your app
+COPY . .
+
+# Set the default command to run your app
+# CMD ["python", "app.py"]
+# Expose the port
+EXPOSE 8081
+
+# Run the UI on container start
+CMD ["autogenstudio", "ui", "--host", "0.0.0.0", "--port", "8081", "--appdir", "/data"]
+

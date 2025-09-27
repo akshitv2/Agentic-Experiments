@@ -1,0 +1,14 @@
+autogen-ext[all]
+autogen
+requests
+numpy
+matplotlib
+autogenstudio
+jmespath
+ddgs
+playwright
+opencv-python
+pillow
+triton
+torch
+numba
