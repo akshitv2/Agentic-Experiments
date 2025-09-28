@@ -1,1 +1,2 @@
-autogen-ext[all]
+autogen-ext[video-surfer , web-surfer,task-centric-memory,ollama , openai,file-surfer]
+autogen-agentchat[gemini]

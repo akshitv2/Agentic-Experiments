@@ -11,3 +11,4 @@ pillow
 triton
 torch
 numba
+openai

@@ -1,5 +1,9 @@
 # Agentic-Experiments
 
+## Setting up Venv
+python3 -m venv .venv
+source .venv/bin/activate
+
 ## Handy Commands
 docker build -t python-autogen .
 
@@ -25,3 +29,5 @@ docker run --rm -p 8081:8081 -v G:\Docker\UserImages\Agentic-Experiments\AutoGen
 docker run --rm -p 8081:8081 -v G:\Docker\UserImages\Agentic-Experiments\AutoGen\app:/app:ro -v G:\Docker\UserData:/data -w /app python-autogen:latest autogenstudio ui --host 0.0.0.0 --port 8081 --appdir /data
 docker run --rm -p 8081:8081 -v G:\Docker\UserData:/data -w /data python-autogen:latest autogenstudio ui --host 0.0.0.0 --port 8081 --appdir /data
 docker run --rm -p 8081:8081 -v G:\Docker\UserImages\Agentic-Experiments\UserData:/data -w /data python-autogen:latest autogenstudio ui --host 0.0.0.0 --port 8081 --appdir /data
+
+docker run --rm -p 8081:8081 -v /media/akbis/drive/dev/Agentic-Experiments/AutoGenUserData:/data -w /data python-autogen:latest autogenstudio ui --host 0.0.0.0 --port 8081 --appdir /data
