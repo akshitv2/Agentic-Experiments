@@ -12,7 +12,7 @@
         "component_type": "agent",
         "version": 1,
         "component_version": 1,
-        "description": "An agent that provides assistance with tool use.",
+        "description": "An agent that provides assistance with ability to use tools.",
         "label": "AssistantAgent",
         "config": {
           "name": "assistant_agent",
@@ -22,11 +22,11 @@
             "version": 1,
             "component_version": 1,
             "description": "google/gemma-3n-e4b",
-            "label": "google/gemma-3n-e4b_1",
+            "label": "google/gemma-3n-e4b",
             "config": {
-              "model": "gpt-4o",
-              "api_key": "tr",
-              "base_url": "http://100.97.1.1:1234/v1/"
+              "model": "gpt-4o-mini",
+              "base_url": "http://192.168.1.15:1234/v1/",
+              "api_key": "test"
             }
           },
           "model_context": {
@@ -50,13 +50,42 @@
               "component_type": "tool",
               "version": 1,
               "component_version": 1,
-              "description": "A tool that performs basic arithmetic operations (addition, subtraction, multiplication, division).",
-              "label": "Calculator Tool",
+              "description": "A tool that fetches the content of a webpage and converts it to markdown. Requires the requests and beautifulsoup4 library to function.",
+              "label": "Fetch Webpage Tool",
               "config": {
-                "source_code": "def calculator(a: float, b: float, operator: str) -> str:\n    try:\n        if operator == \"+\":\n            return str(a + b)\n        elif operator == \"-\":\n            return str(a - b)\n        elif operator == \"*\":\n            return str(a * b)\n        elif operator == \"/\":\n            if b == 0:\n                return \"Error: Division by zero\"\n            return str(a / b)\n        else:\n            return \"Error: Invalid operator. Please use +, -, *, or /\"\n    except Exception as e:\n        return f\"Error: {str(e)}\"\n",
-                "name": "calculator",
-                "description": "A simple calculator that performs basic arithmetic operations",
-                "global_imports": [],
+                "source_code": "async def fetch_webpage(\n    url: str, include_images: bool = True, max_length: Optional[int] = None, headers: Optional[Dict[str, str]] = None\n) -> str:\n    \"\"\"Fetch a webpage and convert it to markdown format.\n\n    Args:\n        url: The URL of the webpage to fetch\n        include_images: Whether to include image references in the markdown\n        max_length: Maximum length of the output markdown (if None, no limit)\n        headers: Optional HTTP headers for the request\n\n    Returns:\n        str: Markdown version of the webpage content\n\n    Raises:\n        ValueError: If the URL is invalid or the page can't be fetched\n    \"\"\"\n    # Use default headers if none provided\n    if headers is None:\n        headers = {\"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\"}\n\n    try:\n        # Fetch the webpage\n        async with httpx.AsyncClient() as client:\n            response = await client.get(url, headers=headers, timeout=10)\n            response.raise_for_status()\n\n            # Parse HTML\n            soup = BeautifulSoup(response.text, \"html.parser\")\n\n            # Remove script and style elements\n            for script in soup([\"script\", \"style\"]):\n                script.decompose()\n\n            # Convert relative URLs to absolute\n            for tag in soup.find_all([\"a\", \"img\"]):\n                if tag.get(\"href\"):\n                    tag[\"href\"] = urljoin(url, tag[\"href\"])\n                if tag.get(\"src\"):\n                    tag[\"src\"] = urljoin(url, tag[\"src\"])\n\n            # Configure HTML to Markdown converter\n            h2t = html2text.HTML2Text()\n            h2t.body_width = 0  # No line wrapping\n            h2t.ignore_images = not include_images\n            h2t.ignore_emphasis = False\n            h2t.ignore_links = False\n            h2t.ignore_tables = False\n\n            # Convert to markdown\n            markdown = h2t.handle(str(soup))\n\n            # Trim if max_length is specified\n            if max_length and len(markdown) > max_length:\n                markdown = markdown[:max_length] + \"\\n...(truncated)\"\n\n            return markdown.strip()\n\n    except httpx.RequestError as e:\n        raise ValueError(f\"Failed to fetch webpage: {str(e)}\") from e\n    except Exception as e:\n        raise ValueError(f\"Error processing webpage: {str(e)}\") from e\n",
+                "name": "fetch_webpage",
+                "description": "Fetch a webpage and convert it to markdown format, with options for including images and limiting length",
+                "global_imports": [
+                  "os",
+                  "html2text",
+                  {
+                    "module": "typing",
+                    "imports": [
+                      "Optional",
+                      "Dict"
+                    ]
+                  },
+                  "httpx",
+                  {
+                    "module": "bs4",
+                    "imports": [
+                      "BeautifulSoup"
+                    ]
+                  },
+                  {
+                    "module": "html2text",
+                    "imports": [
+                      "HTML2Text"
+                    ]
+                  },
+                  {
+                    "module": "urllib.parse",
+                    "imports": [
+                      "urljoin"
+                    ]
+                  }
+                ],
                 "has_cancellation_support": false
               }
             }

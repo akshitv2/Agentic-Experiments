@@ -1,0 +1,6 @@
+requests
+numpy
+ddgs
+crewai
+numba
+langchain
